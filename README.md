@@ -9,7 +9,7 @@ Refer to the following scripts in this repository and their respective purposes:
 - ```/download/```
   - ```tempo.py``` : subsetting and extraction of required attributes from TEMPO netCDF files
   - ```tropomi.py``` : downloading process of TROPOMI Level 3 data from Google Earth Engine
-  - ```airnow.py``` : downloading process of hourly measurements of surface monitors from AirNow via RSIG
+  - ```airnow.py``` : downloading process of hourly measurements of surface monitors from AirNow via RSIG (EPA)
 
 - ```qa_aggregate.py``` : masking of pixel observations with high uncertainties and temporally aggregated data arrays
 - ```preload_aggregate.py``` : fast-loading the temporally aggregated data arrays for visualization
