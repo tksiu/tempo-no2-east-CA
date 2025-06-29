@@ -15,7 +15,7 @@ Refer to the following scripts in this repository and their respective purposes:
 - ```qa_aggregate.py``` : masking of pixel observations with high uncertainties and temporally aggregated data arrays
 - ```preload_aggregate.py``` : fast-loading the temporally aggregated data arrays for visualization
 
-- ```census.py``` : processing Canadian census boundaries and population data for within-city NO<sub>2</sub> average calculations
+- ```census.py``` : processing Canadian census boundaries for within-city NO<sub>2</sub> average calculations
 
 - ```diurnal.ipynb``` : plots assessing city-level diurnal trends with stratification by seasons and weekdays/weekends
 - ```monitoring_gaps.ipynb``` : plots assessing under-monitored communities based on TEMPO spatial variability
