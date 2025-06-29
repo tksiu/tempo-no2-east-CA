@@ -8,13 +8,17 @@ Refer to the following scripts in this repository and their respective purposes:
 
 - ```/download/```
   - ```tempo.py``` : subsetting and extraction of required attributes from TEMPO netCDF files
-  - ```tropomi.py``` : downloading process of TROPOMI Level 3 data from Google Earth Engine
-  - ```airnow.py``` : downloading process of hourly measurements of surface monitors from AirNow via RSIG (EPA)
+  - ```tropomi.py``` : downloading TROPOMI Level 3 data from Google Earth Engine
+  - ```airnow.py``` : downloading hourly measurements of surface monitors from AirNow via RSIG (EPA)
+  - ```modis_lc.py``` : downloading MODIS Land Cover class (Type 3) data from Google Earth Engine and re-classifying for TEMPO-TROPOMI validations by land use
 
 - ```qa_aggregate.py``` : masking of pixel observations with high uncertainties and temporally aggregated data arrays
 - ```preload_aggregate.py``` : fast-loading the temporally aggregated data arrays for visualization
 
+- ```census.py``` : processing Canadian census boundaries and population data for within-city NO<sub>2</sub> average calculations
+
 - ```diurnal.ipynb``` : plots assessing city-level diurnal trends with stratification by seasons and weekdays/weekends
 - ```monitoring_gaps.ipynb``` : plots assessing under-monitored communities based on TEMPO spatial variability
+
 - ```columnar_validate.py``` :  spatiotemporally colocated TEMPO and TROPOMI comparison
 - ```column_surface.py``` :  spatiotemporally colocated TEMPO & AirNow observations at surface monitor locations
