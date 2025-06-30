@@ -8,14 +8,17 @@ import pickle
 
 '''  Initialization  '''
 
+#  Atlantic Canada
 folder = f"./Atlantic Canada/Output/"
 no2_agg = sorted([x for x in os.listdir(folder) if "no2_" in x and "agg" in x])
 no2_obs_counts = sorted([x for x in os.listdir(folder) if "no2_" in x and "obs_count" in x])
 
+#  QW corridor
 folder_qw = f"./QW corridor/Output/"
 no2_agg_qw = sorted([x for x in os.listdir(folder_qw) if "no2_" in x and "agg" in x])
 no2_obs_counts_qw = sorted([x for x in os.listdir(folder_qw) if "no2_" in x and "obs_count" in x])
 
+# 2023 Sept - 2024 Aug
 season_keys = {
         "SON": ["2023_09", "2023_10", "2023_11"],
         "DJF": ["2023_12", "2024_01", "2024_02"],
@@ -23,6 +26,7 @@ season_keys = {
         "JJA": ["2024_06", "2024_07", "2024_08"]
 }
 
+# invalid hours from UTC to time zones in eastern Canada
 invalid_hours = ["-4","-3","-2"]
 invalid_hours_corrected_atl = ["20","21","22"]
 invalid_hours_corrected_qw = ["19","20","21"]

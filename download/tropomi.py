@@ -155,7 +155,7 @@ def download_tropomi_5yr_mean(roi):
     task = ee.batch.Export.image.toDrive(
         image = mean_tif,
         description = 'Tropomi_NO2_5yr_mean',
-        folder ="TROPOMI 2023/09-2024/08",
+        folder ="TROPOMI 2018/09-2023/08",
         region = roi,
         scale = 1113.2,
         crs = 'EPSG:4326',

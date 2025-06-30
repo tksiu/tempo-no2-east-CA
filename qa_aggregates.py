@@ -239,8 +239,7 @@ if __name__ == 'main':
                                     snow_filter=True, 
                                     snow_col='snow_ice_fraction', 
                                     snow_fraction=0.05,
-                                    tempo_minute_cutoff = 47, 
-                                    negative_values=True)
+                                    tempo_minute_cutoff = 47)
 
 
     ##  Example 2:  QW Corridor
@@ -275,5 +274,4 @@ if __name__ == 'main':
                                     snow_filter=True, 
                                     snow_col='snow_ice_fraction', 
                                     snow_fraction=0.05,
-                                    tempo_minute_cutoff = 34, 
-                                    negative_values=True)
+                                    tempo_minute_cutoff = 34)

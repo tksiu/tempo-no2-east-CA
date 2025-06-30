@@ -125,7 +125,7 @@ def pc_interpolate_grids():
 
 ###  2) Census Tracts for targeted cities (except Cape Breton)
 
-def tracts():
+def tracts(predicate):
 
     ct_shp_path = f"./Shapefiles/Census Tract/"
     ct_polys = gpd.read_file(ct_shp_path + "lct_000b21a_e.shp")
@@ -133,15 +133,84 @@ def tracts():
     ct_polys = ct_polys.set_crs(epsg=3347)
     ct_polys = ct_polys.to_crs(epsg=4326)
 
-    # extracting all census tracts within the outer bounding boxes of selected population centers
+    # extracting all census tracts within or intersecting the outer bounding boxes of selected population centers
 
-    within_cts = {}
+    assert predicte in ["within", "intersect"], "available options are: ['within', 'intersect']"
+
+    collect_cts = {}
 
     for p in range(pc.shape[0]):
 
         pc_name = pc["PCNAME"].iloc[p]
         
-        within = ct_polys.within(
+        if predicte == "within":
+
+            extract = ct_polys.within(
+                shapely.Polygon([   
+                    (pc[pc["PCNAME"] == pc_name].values[0][1] - 0.02,
+                    pc[pc["PCNAME"] == pc_name].values[0][2] - 0.02),
+                    (pc[pc["PCNAME"] == pc_name].values[0][1] - 0.02,
+                    pc[pc["PCNAME"] == pc_name].values[0][4] + 0.02),
+                    (pc[pc["PCNAME"] == pc_name].values[0][3] + 0.02,
+                    pc[pc["PCNAME"] == pc_name].values[0][4] + 0.02),
+                    (pc[pc["PCNAME"] == pc_name].values[0][3] + 0.02,
+                    pc[pc["PCNAME"] == pc_name].values[0][2] - 0.02)
+                ])
+            )
+
+        elif predicte == "intersect":
+
+            extract = ct_polys.intersection(
+                shapely.Polygon([   
+                    (pc[pc["PCNAME"] == pc_name].values[0][1] - 0.02,
+                    pc[pc["PCNAME"] == pc_name].values[0][2] - 0.02),
+                    (pc[pc["PCNAME"] == pc_name].values[0][1] - 0.02,
+                    pc[pc["PCNAME"] == pc_name].values[0][4] + 0.02),
+                    (pc[pc["PCNAME"] == pc_name].values[0][3] + 0.02,
+                    pc[pc["PCNAME"] == pc_name].values[0][4] + 0.02),
+                    (pc[pc["PCNAME"] == pc_name].values[0][3] + 0.02,
+                    pc[pc["PCNAME"] == pc_name].values[0][2] - 0.02)
+                ])
+            )
+            
+        extract = pd.DataFrame(extract).reset_index(drop=True)
+        extract.columns = ["included"]
+
+        extract["DGUID"] = ct_polys["DGUID"]
+        extract["geometry"] = ct_polys["geometry"]
+        extract["PCNAME"] = pc_name
+        extract = extract[extract["included"] == True]
+
+        extract = gpd.GeoDataFrame(extract).reset_index(drop=True)
+        extract = extract.set_geometry("geometry")
+        
+        collect_cts[pc_name] = extract
+
+    return collect_cts
+
+
+
+### 3) Census Dissemination Areas (Cape Breton)
+
+def dissemination_areas(predicate):
+
+    da_shp_path = f"./Shapefiles/Dissemination Area/"
+    da_polys = gpd.read_file(da_shp_path + "lda_000b21a_e.shp")
+
+    da_polys = da_polys.set_crs(epsg=3347)
+    da_polys = da_polys.to_crs(epsg=4326)
+
+    # extracting all census dissemination areas within the outer bounding boxes of Cape Breton (no tracts available)
+
+    assert predicte in ["within", "intersect"], "available options are: ['within', 'intersect']"
+
+    collect_das = {}
+
+    pc_name = "Cape Breton - Sydney"
+
+    if predicte == "within":
+
+        extract = da_polys.within(
             shapely.Polygon([   
                 (pc[pc["PCNAME"] == pc_name].values[0][1] - 0.02,
                 pc[pc["PCNAME"] == pc_name].values[0][2] - 0.02),
@@ -153,60 +222,33 @@ def tracts():
                 pc[pc["PCNAME"] == pc_name].values[0][2] - 0.02)
             ])
         )
-        
-        within = pd.DataFrame(within).reset_index(drop=True)
-        within.columns = ["within"]
 
-        within["DGUID"] = ct_polys["DGUID"]
-        within["geometry"] = ct_polys["geometry"]
-        within["PCNAME"] = pc_name
-        within = within[within["within"] == True]
+    elif predicte == "intersect":
 
-        within = gpd.GeoDataFrame(within).reset_index(drop=True)
-        within = within.set_geometry("geometry")
-        
-        within_cts[pc_name] = within
+        extract = da_polys.intersection(
+            shapely.Polygon([   
+                (pc[pc["PCNAME"] == pc_name].values[0][1] - 0.02,
+                pc[pc["PCNAME"] == pc_name].values[0][2] - 0.02),
+                (pc[pc["PCNAME"] == pc_name].values[0][1] - 0.02,
+                pc[pc["PCNAME"] == pc_name].values[0][4] + 0.02),
+                (pc[pc["PCNAME"] == pc_name].values[0][3] + 0.02,
+                pc[pc["PCNAME"] == pc_name].values[0][4] + 0.02),
+                (pc[pc["PCNAME"] == pc_name].values[0][3] + 0.02,
+                pc[pc["PCNAME"] == pc_name].values[0][2] - 0.02)
+            ])
+        )
 
+    extract = pd.DataFrame(extract).reset_index(drop=True)
+    extract.columns = ["included"]
 
-
-### 3) Census Dissemination Areas (Cape Breton)
-
-def dissemination_areas():
-
-    da_shp_path = f"./Shapefiles/Dissemination Area/"
-    da_polys = gpd.read_file(da_shp_path + "lda_000b21a_e.shp")
-
-    da_polys = da_polys.set_crs(epsg=3347)
-    da_polys = da_polys.to_crs(epsg=4326)
-
-    # extracting all census dissemination areas within the outer bounding boxes of Cape Breton (no tracts available)
-
-    within_das = {}
-
-    pc_name = "Cape Breton - Sydney"
-
-    within = da_polys.within(
-        shapely.Polygon([   
-            (pc[pc["PCNAME"] == pc_name].values[0][1] - 0.02,
-            pc[pc["PCNAME"] == pc_name].values[0][2] - 0.02),
-            (pc[pc["PCNAME"] == pc_name].values[0][1] - 0.02,
-            pc[pc["PCNAME"] == pc_name].values[0][4] + 0.02),
-            (pc[pc["PCNAME"] == pc_name].values[0][3] + 0.02,
-            pc[pc["PCNAME"] == pc_name].values[0][4] + 0.02),
-            (pc[pc["PCNAME"] == pc_name].values[0][3] + 0.02,
-            pc[pc["PCNAME"] == pc_name].values[0][2] - 0.02)
-        ])
-    )
-
-    within = pd.DataFrame(within).reset_index(drop=True)
-    within.columns = ["within"]
-
-    within["DGUID"] = da_polys["DGUID"]
-    within["geometry"] = da_polys["geometry"]
-    within["PCNAME"] = pc_name
-    within = within[within["within"] == True]
+    extract["DGUID"] = da_polys["DGUID"]
+    extract["geometry"] = da_polys["geometry"]
+    extract["PCNAME"] = pc_name
+    extract = extract[extract["included"] == True]
     
-    within = gpd.GeoDataFrame(within).reset_index(drop=True)
-    within = within.set_geometry("geometry")
+    extract = gpd.GeoDataFrame(extract).reset_index(drop=True)
+    extract = extract.set_geometry("geometry")
     
-    within_das[pc_name] = within
+    collect_das[pc_name] = extract
+
+    return collect_das

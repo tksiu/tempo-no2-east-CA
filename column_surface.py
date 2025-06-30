@@ -177,7 +177,7 @@ def retain_CA_stations(extracted_obs_tempo):
 
 
 
-def grouped_aggregate(extracted_obs_tempo, time_col):
+def temporal_aggregate(extracted_obs_tempo, time_col):
 
     extracted_obs_tempo_aggregate = extracted_obs_tempo.groupby([time_col,'longitude','latitude']).agg({
         k: [np.nanmean, np.nanstd] for k in 
