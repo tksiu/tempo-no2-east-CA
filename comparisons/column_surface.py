@@ -264,8 +264,23 @@ def plot_regression(extracted_obs_tempo_aggregate):
     plt.xlabel("TEMPO " + "$NO_{2}$" + " VCD (1 x " + "$10^{15}$ " + "$  molec/cm^{2})$", fontsize=16)
     plt.ylabel("Surface " + "$NO_{2}$" + " measurement (ppb)", fontsize=16)
     plt.text(np.nanmax(extracted_obs_tempo_aggregate["fem_tempo_extract"])*0.95, np.nanmax(extracted_obs_tempo_aggregate["fem_value"])*0.95, 
-            "Spearman's R = " + str(round(extracted_obs_tempo_aggregate[['fem_tempo_extract','fem_value']].corr(method="spearman").iloc[0,1], 2)),
+             "Pearson's R = " + str(round(extracted_obs_tempo_aggregate[['fem_tempo_extract','fem_value']].corr(method="pearson").iloc[0,1], 2)),
+             "Spearman's R = " + str(round(extracted_obs_tempo_aggregate[['fem_tempo_extract','fem_value']].corr(method="spearman").iloc[0,1], 2)),
             fontsize=16)
+    plt.xticks(fontsize=16)
+    plt.yticks(fontsize=16)
+
+
+
+def plot_regression_residuals(extracted_obs_tempo_aggregate):
+
+    plt.rcParams["figure.figsize"] = [12.8, 9.6]
+
+    seaborn.residplot(data=extracted_obs_tempo_aggregate[["fem_tempo_extract","fem_tempo_extract_err","fem_value","fem_value_err"]].dropna(), 
+                      x="fem_tempo_extract", y="fem_value", scatter_kws={'s':20, "color": "black"})
+    
+    plt.xlabel("TEMPO " + "$NO_{2}$" + " VCD (1 x " + "$10^{15}$ " + "$  molec/cm^{2})$", fontsize=16)
+    plt.ylabel("Residual (ppb)", fontsize=16)
     plt.xticks(fontsize=16)
     plt.yticks(fontsize=16)
 
@@ -329,10 +344,33 @@ def plot_trend(extracted_obs_tempo_aggregate, time_col, plot_mode):
 
     if plot_mode == "line":
 
-        g = seaborn.lineplot(data = pd.melt(plot_df[['TEMPO', 'AirNow', time_col.capitalize()]], [time_col.capitalize()]), 
-                            x = time_col.capitalize(), 
-                            y = 'value', 
-                            hue = 'variable')
+        if time_col == "week":
+
+            # Get unique categories from the hue variable
+            unique_categories = plot_df['segment'].unique()
+            # Create a palette dictionary where all categories map to 'red'
+            custom_palette_0 = {category: np.array(seaborn.color_palette())[0] for category in unique_categories}
+            custom_palette_1 = {category: np.array(seaborn.color_palette())[1] for category in unique_categories}
+
+            g = seaborn.lineplot(data = plot_df, 
+                                x = time_col.capitalize(), 
+                                y = 'TEMPO', 
+                                hue = 'segment',
+                                legend = False,
+                                palette = custom_palette_0)
+            g = seaborn.lineplot(data = plot_df, 
+                                x = time_col.capitalize(), 
+                                y = 'AirNow', 
+                                hue = 'segment',
+                                legend = False,
+                                palette = custom_palette_1)
+
+        else:
+
+            g = seaborn.lineplot(data = pd.melt(plot_df[['TEMPO', 'AirNow', time_col.capitalize()]], [time_col.capitalize()]), 
+                                x = time_col.capitalize(), 
+                                y = 'value', 
+                                hue = 'variable')
 
     elif plot_mode == "box":
 
