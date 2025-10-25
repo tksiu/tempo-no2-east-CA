@@ -1,32 +1,19 @@
 import pandas as pd
 import time
+import pyrsig
+from datetime import datetime
 
 
 #  attribute name
-
 features_set = [
     'airnow.no2'
 ]
 
 
 #  batches / divisions of the study period
-
 download_dates = [
-    pd.date_range(start="2018-07-01", end="2018-12-31").to_pydatetime(),
-    pd.date_range(start="2019-01-01", end="2019-06-30").to_pydatetime(),
-    pd.date_range(start="2019-07-01", end="2019-12-31").to_pydatetime(),
-    pd.date_range(start="2020-01-01", end="2020-06-30").to_pydatetime(),
-    pd.date_range(start="2020-07-01", end="2020-12-31").to_pydatetime(),
-    pd.date_range(start="2021-01-01", end="2021-06-30").to_pydatetime(),
-    pd.date_range(start="2021-07-01", end="2021-12-31").to_pydatetime(),
-    pd.date_range(start="2022-01-01", end="2022-06-30").to_pydatetime(),
-    pd.date_range(start="2022-07-01", end="2022-12-31").to_pydatetime(),
-    pd.date_range(start="2023-01-01", end="2023-06-30").to_pydatetime(),
-    pd.date_range(start="2023-07-01", end="2023-12-31").to_pydatetime(),
-    pd.date_range(start="2024-01-01", end="2024-06-30").to_pydatetime(),
-    pd.date_range(start="2024-07-01", end="2024-09-30").to_pydatetime(),
+    pd.date_range(start="2023-09-01", end="2024-08-31").to_pydatetime(),
 ]
-
 
 
 ##  Atlantic Canada
@@ -36,6 +23,8 @@ atlantic_bbox = (-69.05, 43.05, -52.05, 51.05)
 qw_bbox = (-86.05, 41.20, -69.05, 48.20)
 
 
+
+## Downloading function for execution
 
 def downloading(region_bbox):
 

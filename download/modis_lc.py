@@ -2,6 +2,7 @@ import ee
 ee.Authenticate()
 ee.Initialize(project='')
 
+import numpy as np
 import pandas as pd
 import geopandas as gpd
 import exactextract as eet
@@ -107,58 +108,6 @@ def preload_tempo_coords(file_name, folder_name):
 
 
 
-##  Resample 500 m x 500 m MODIS resolution to TEMPO grid resolution
-
-def resample_lc(raster_lc, coord):
-
-    # proportion of each land cover class in each TEMPO grid
-    lc_prop = eet.exact_extract(raster_lc, coord, "frac")
-    # presence of land classes in each TEMPO grid
-    lc_unique_values = eet.exact_extract(raster_lc, coord, 'unique')
-
-    # write to a new dataframe
-    lc_resamp = pd.concat(
-        [
-            pd.DataFrame({
-                u: v
-                for u, v in zip(lc_unique_values[n]['properties']['unique'], lc_prop[n]['properties']['frac'])
-            },
-            index = [0])
-            for n in range(coord.shape[0])
-        ]
-    )
-    lc_resamp = lc_resamp.reset_index(drop=True)
-    lc_resamp = lc_resamp.fillna(0)
-
-    # rename columns with MODIS Land Cover Type 3 classes
-    classes = [
-        "water",
-        "grassland",
-        "shrubland",
-        "cropland",
-        "savannas",
-        "forest_1",
-        "forest_2",
-        "forest_3",
-        "forest_4",
-        "barren",
-        "urban"
-    ]
-    lc_resamp.columns = [classes[int(x)] for x in lc_resamp.columns]
-
-    # combine classes
-    lc_resamp['forest'] = lc_resamp[["forest_1","forest_2","forest_3","forest_4"]].sum(axis=1)
-    lc_resamp['herbaceous'] = lc_resamp[["grassland","shrubland","cropland"]].sum(axis=1)
-
-    lc_resamp = lc_resamp.drop(
-        ["forest_1","forest_2","forest_3","forest_4",
-         "grassland","shrubland","cropland"]
-    )
-
-    return lc_resamp
-
-
-
 ##  Reclassification rules
 
 def land_cover_classifier(x):
@@ -249,4 +198,59 @@ def land_cover_classifier(x):
             reclass = "mixed"
 
     return reclass
+
+
+
+##  Resample 500 m x 500 m MODIS resolution to TEMPO grid resolution
+
+def resample_lc(raster_lc, coord):
+
+    # proportion of each land cover class in each TEMPO grid
+    lc_prop = eet.exact_extract(raster_lc, coord, "frac")
+    # presence of land classes in each TEMPO grid
+    lc_unique_values = eet.exact_extract(raster_lc, coord, 'unique')
+
+    # write to a new dataframe
+    lc_resamp = pd.concat(
+        [
+            pd.DataFrame({
+                u: v
+                for u, v in zip(lc_unique_values[n]['properties']['unique'], lc_prop[n]['properties']['frac'])
+            },
+            index = [0])
+            for n in range(coord.shape[0])
+        ]
+    )
+    lc_resamp = lc_resamp.reset_index(drop=True)
+    lc_resamp = lc_resamp.fillna(0)
+
+    # rename columns with MODIS Land Cover Type 3 classes
+    classes = [
+        "water",
+        "grassland",
+        "shrubland",
+        "cropland",
+        "savannas",
+        "forest_1",
+        "forest_2",
+        "forest_3",
+        "forest_4",
+        "barren",
+        "urban"
+    ]
+    lc_resamp.columns = [classes[int(x)] for x in lc_resamp.columns]
+
+    # combine classes
+    lc_resamp['forest'] = lc_resamp[["forest_1","forest_2","forest_3","forest_4"]].sum(axis=1)
+    lc_resamp['herbaceous'] = lc_resamp[["grassland","shrubland","cropland"]].sum(axis=1)
+
+    lc_resamp = lc_resamp.drop(
+        ["forest_1","forest_2","forest_3","forest_4",
+         "grassland","shrubland","cropland"]
+    )
+
+    # re-classify the groupings
+    lc_resamp['reclass'] = lc_resamp.apply(lambda x: land_cover_classifier(x), axis=1)
+
+    return lc_resamp
 

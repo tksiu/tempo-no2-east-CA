@@ -52,10 +52,12 @@ def pop_center():
                                      "miny": np.min,
                                      "maxx": np.max,
                                      "maxy": np.max}).reset_index()
+    
+    return pc
 
 
 
-def pc_interpolate_grids():
+def pc_interpolate_grids(pc, interp_res=0.01):
 
     ###  for intra-populaation-center analyses, downsample TEMPO 0.02 x 0.02 grids to 0.002 x 0.002 (200 m x 200 m) resolution
 
@@ -68,17 +70,17 @@ def pc_interpolate_grids():
         name = pc["PCNAME"].iloc[n]
 
         ##  calculate scene widths and heights (so as the aspect ratios) for selected PCs
-        width = np.array((pc.maxx.iloc[n] - pc.minx.iloc[n]) / 0.002)
-        height = np.array((pc.maxy.iloc[n] - pc.miny.iloc[n]) / 0.002)
+        width = np.array((pc.maxx.iloc[n] - pc.minx.iloc[n]) / interp_res)
+        height = np.array((pc.maxy.iloc[n] - pc.miny.iloc[n]) / interp_res)
 
         ##  consider buffering two grid-line edges for each dimension
         dim = (math.ceil(width), math.ceil(height))
 
         ##  starting from northend and westend, get grid corner and center coordinates 
-        top_left_corner_h = np.array([pc.minx.iloc[n] + 0.002 * z for z in range(dim[0])]).reshape(-1).tolist()
-        top_right_corner_h = top_left_corner_h[1:] + [top_left_corner_h[-1] + 0.002]
-        top_left_corner_v = np.array([pc.maxy.iloc[n] - 0.002 * z for z in range(dim[1])]).reshape(-1).tolist()
-        bottom_left_corner_v = top_left_corner_v[1:] + [top_left_corner_v[-1] - 0.002]
+        top_left_corner_h = np.array([pc.minx.iloc[n] + interp_res * z for z in range(dim[0])]).reshape(-1).tolist()
+        top_right_corner_h = top_left_corner_h[1:] + [top_left_corner_h[-1] + interp_res]
+        top_left_corner_v = np.array([pc.maxy.iloc[n] - interp_res * z for z in range(dim[1])]).reshape(-1).tolist()
+        bottom_left_corner_v = top_left_corner_v[1:] + [top_left_corner_v[-1] - interp_res]
         centroids_h = top_left_corner_h + [top_right_corner_h[-1]]
         centroids_v = top_left_corner_v + [bottom_left_corner_v[-1]]
         centroids_h = [0.5 * (centroids_h[x] + centroids_h[x+1]) for x in range(len(centroids_h) - 1)]
@@ -121,11 +123,13 @@ def pc_interpolate_grids():
         pc_grids_coords[name] = grids_coords
         aspect[name] = dim
 
+        return pc_coords, pc_grids_coords, aspect
+
 
 
 ###  2) Census Tracts for targeted cities (except Cape Breton)
 
-def tracts(predicate):
+def tracts(predicate, pc):
 
     ct_shp_path = f"./Shapefiles/Census Tract/"
     ct_polys = gpd.read_file(ct_shp_path + "lct_000b21a_e.shp")
@@ -135,7 +139,7 @@ def tracts(predicate):
 
     # extracting all census tracts within or intersecting the outer bounding boxes of selected population centers
 
-    assert predicte in ["within", "intersect"], "available options are: ['within', 'intersect']"
+    assert predicate in ["within", "intersect"], "available options are: ['within', 'intersect']"
 
     collect_cts = {}
 
@@ -143,7 +147,7 @@ def tracts(predicate):
 
         pc_name = pc["PCNAME"].iloc[p]
         
-        if predicte == "within":
+        if predicate == "within":
 
             extract = ct_polys.within(
                 shapely.Polygon([   
@@ -158,7 +162,7 @@ def tracts(predicate):
                 ])
             )
 
-        elif predicte == "intersect":
+        elif predicate == "intersect":
 
             extract = ct_polys.intersection(
                 shapely.Polygon([   
@@ -192,7 +196,7 @@ def tracts(predicate):
 
 ### 3) Census Dissemination Areas (Cape Breton)
 
-def dissemination_areas(predicate):
+def dissemination_areas(predicate, pc):
 
     da_shp_path = f"./Shapefiles/Dissemination Area/"
     da_polys = gpd.read_file(da_shp_path + "lda_000b21a_e.shp")
@@ -202,13 +206,13 @@ def dissemination_areas(predicate):
 
     # extracting all census dissemination areas within the outer bounding boxes of Cape Breton (no tracts available)
 
-    assert predicte in ["within", "intersect"], "available options are: ['within', 'intersect']"
+    assert predicate in ["within", "intersect"], "available options are: ['within', 'intersect']"
 
     collect_das = {}
 
     pc_name = "Cape Breton - Sydney"
 
-    if predicte == "within":
+    if predicate == "within":
 
         extract = da_polys.within(
             shapely.Polygon([   
@@ -223,7 +227,7 @@ def dissemination_areas(predicate):
             ])
         )
 
-    elif predicte == "intersect":
+    elif predicate == "intersect":
 
         extract = da_polys.intersection(
             shapely.Polygon([   

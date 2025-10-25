@@ -2,7 +2,7 @@
 ---------------------------------------------------------------------------------------------------------
 
 This repository presents the Python codes used for the analysis of the manuscript, <i>"Tropospheric NO<sub>2</sub> Patterns in Eastern Canada Using the First Year of TEMPO Observations"</i>, submitted to JGR: Atmosphere. 
-All TEMPO data were sourced from earthdata.nasa.gov (by NASA Atmospheric Science Data Center), provisional gridded Level 3 tropospheric NO<sub>2</sub> column (DOI: <a her="https://doi.org/10.5067/IS-40e/TEMPO/NO2_L3.003">https://doi.org/10.5067/IS-40e/TEMPO/NO2_L3.003</a>) .
+All TEMPO data were sourced from earthdata.nasa.gov (by NASA Atmospheric Science Data Center), provisional gridded Level 3 tropospheric NO<sub>2</sub> column (DOI: <a her="https://doi.org/10.5067/IS-40e/TEMPO/NO2_L3.003">https://doi.org/10.5067/IS-40e/TEMPO/NO2_L3.003</a>).
 
 Refer to the following scripts in this repository and their respective purposes:
 
@@ -12,13 +12,18 @@ Refer to the following scripts in this repository and their respective purposes:
   - ```airnow.py``` : downloading hourly measurements of surface monitors from AirNow via RSIG (EPA)
   - ```modis_lc.py``` : downloading MODIS Land Cover class (Type 3) data from Google Earth Engine and re-classifying for TEMPO-TROPOMI validations by land use
 
-- ```qa_aggregate.py``` : masking of pixel observations with high uncertainties and temporally aggregated data arrays
-- ```preload_aggregate.py``` : fast-loading the temporally aggregated data arrays for visualization
+- ```/aggregates/```
+  - ```qa_aggregate.py``` : masking of pixel observations with high uncertainties and temporally aggregated data arrays
+  - ```preload_aggregate.py``` : fast-loading the temporally aggregated data arrays for visualization
 
 - ```census.py``` : processing Canadian census boundaries for within-city NO<sub>2</sub> average calculations
 
-- ```diurnal.ipynb``` : plots assessing city-level diurnal trends with stratification by seasons and weekdays/weekends
-- ```monitoring_gaps.ipynb``` : plots assessing under-monitored communities based on TEMPO spatial variability
+- ```/ipynb/```
+  - ```annual.ipynb``` : plots assessing annual averaged TEMPO spatial variability regionally and locally
+  - ```diurnal.ipynb``` : plots assessing city-level diurnal trends with stratification by seasons and weekdays/weekends
+  - ```monitoring_gaps.ipynb``` : plots assessing under-monitored communities based on TEMPO spatial variability
 
-- ```columnar_validate.py``` :  spatiotemporally colocated TEMPO and TROPOMI comparison
-- ```column_surface.py``` :  spatiotemporally colocated TEMPO & AirNow observations at surface monitor locations
+- ```/comparisons/```
+  - ```satellite_colocation.py``` :  steps to generate spatiotemporally colocated (paired) TEMPO and TROPOMI images
+  - ```satellite_stats.py``` :  steps to generate TEMPO and TROPOMI comparison statisitcs and plots
+  - ```column_surface.py``` :  spatiotemporally colocated TEMPO & AirNow observations at surface monitor locations
